@@ -2,104 +2,94 @@ import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 dayjs.extend(customParseFormat)
 
-function parseTs(ts) {
-  if (ts == null) return null
-  const raw = String(ts).trim().replace('.5055', '.2025')
-  const d = dayjs(raw, 'DD.MM.YYYY, HH:mm:ss', true) // строгий разбор
+function parseTs(ts){
+  const d = dayjs(String(ts).trim(),'DD.MM.YYYY, HH:mm:ss',true)
   return d.isValid() ? d : null
 }
 
-export function normalizeLead(r) {
-  const d = parseTs(r?.timestamp)
+export function normalizeLead(r){
   return {
-    client_name: r?.client_name ?? '—',
-    phone: r?.phone ?? r?.Phone ?? 'Не указан',
-    selected_car: r?.selected_car ?? '—',
-    summary: r?.summary ?? '',
-    lead_quality: (r?.lead_quality ?? r?.quality ?? 'unknown').toLowerCase(),
-    timestamp: d ? d.format('DD.MM.YYYY, HH:mm:ss') : '—',
-    source: (r?.Source ?? r?.source ?? 'unknown').toLowerCase()
+    client_name: r.client_name ?? '',
+    phone: r.phone ?? '',
+    selected_car: r.selected_car ?? '',
+    summary: r.summary ?? '',
+    lead_quality: r.lead_quality ?? 'unknown',
+    timestamp: r.timestamp ?? '',
+    source: r.Source ?? r.source ?? 'unknown'
   }
 }
 
-export function collectFacetOptions(rows) {
-  const qualities = new Set(), sources = new Set(), models = new Set()
-  rows.forEach(r=>{
-    if (r.lead_quality) qualities.add(r.lead_quality)
-    if (r.source) sources.add(r.source)
-    if (r.selected_car) models.add(r.selected_car)
+export function collectFacetOptions(raw){
+  const src = new Set(), mdl = new Set(), q = new Set()
+  raw.forEach(r=>{
+    if(r.source) src.add(r.source)
+    if(r.Source) src.add(r.Source)
+    if(r.selected_car) mdl.add(r.selected_car)
+    if(r.lead_quality) q.add(r.lead_quality)
   })
   return {
-    qualities:[...qualities].sort(),
-    sources:[...sources].sort(),
-    models:[...models].sort(),
+    sources: Array.from(src).sort(),
+    models: Array.from(mdl).sort(),
+    qualities: Array.from(q).sort()
   }
 }
 
-export function filterRows(raw, filters){
-  const f = (raw||[]).map(normalizeLead)
-  return f.filter(r=>{
-    if (filters.quality!=='all' && r.lead_quality!==filters.quality) return false
-    if (filters.source!=='all' && r.source!==filters.source) return false
-    if (filters.model!=='all' && r.selected_car!==filters.model) return false
-    if (filters.from){
-      const d=parseTs(r.timestamp); if (!d || d.isBefore(filters.from,'day')) return false
+export function filterRows(raw, f){
+  const q = (raw||[]).map(normalizeLead)
+  return q.filter(r=>{
+    if(f.q){
+      const s = `${r.client_name} ${r.phone} ${r.summary}`.toLowerCase()
+      if(!s.includes(f.q.toLowerCase())) return false
     }
-    if (filters.to){
-      const d=parseTs(r.timestamp); if (!d || d.isAfter(filters.to,'day')) return false
+    if(f.quality!=='all' && r.lead_quality!==f.quality) return false
+    const src = r.source
+    if(f.source!=='all' && src!==f.source) return false
+    if(f.model!=='all' && r.selected_car!==f.model) return false
+    if(f.from){
+      const d=parseTs(r.timestamp); if(d && d.isBefore(dayjs(f.from))) return false
     }
-    const q = filters.q?.trim().toLowerCase()
-    if (q){
-      const inRow = `${r.client_name} ${r.phone} ${r.selected_car} ${r.summary}`.toLowerCase()
-      if (!inRow.includes(q)) return false
+    if(f.to){
+      const d=parseTs(r.timestamp); if(d && d.isAfter(dayjs(f.to))) return false
     }
     return true
   })
 }
 
 export function computeAnalytics(rows){
-  const total = rows.length
-  const high = rows.filter(r=>r.lead_quality==='high').length
-  const conversion = total ? Math.round(high/total*100) : 0
-
   const bySource = {}
+  const byDay = {}
+  const byHour = {}
+  const byModel = {}
+  let total = rows.length
+  let high = 0
+
   rows.forEach(r=>{
-    const k = r.source || 'unknown'
-    bySource[k] = (bySource[k]||0) + 1
+    const src = r.source || 'unknown'
+    bySource[src]=(bySource[src]||0)+1
+    const m = r.selected_car || '—'
+    byModel[m]=(byModel[m]||0)+1
+    if(String(r.lead_quality).toLowerCase()==='high') high++
+    const d=parseTs(r.timestamp)
+    if(d){
+      const dk=d.format('YYYY-MM-DD')
+      byDay[dk]=(byDay[dk]||0)+1
+      const hk=d.format('HH')
+      byHour[hk]=(byHour[hk]||0)+1
+    }
   })
 
-  const map = {}
-  rows.forEach(r=>{
-    const d = parseTs(r.timestamp)
-    if (!d) return
-    const key = d.format('YYYY-MM-DD')
-    map[key] = (map[key]||0)+1
-  })
-  const timeline = Object.entries(map)
-    .sort(([a],[b])=>a.localeCompare(b))
-    .map(([date,value])=>({date,value}))
-
-  const models = {}
-  rows.forEach(r=>{
-    const k = r.selected_car || '—'
-    models[k] = (models[k]||0)+1
-  })
-  const topModels = Object.entries(models)
-    .sort((a,b)=>b[1]-a[1]).slice(0,5)
-    .map(([name,value])=>({name,value}))
-
-  const hours = Array.from({length:24}, (_,h)=>({hour: String(h).padStart(2,'0'), value:0}))
-  rows.forEach(r=>{
-    const d = parseTs(r.timestamp)
-    if (!d) return
-    const h = d.format('HH')
-    const i = Number(h)
-    if (!Number.isNaN(i)) hours[i].value++
-  })
+  const timeline = Object.entries(byDay).sort(([a],[b])=>a.localeCompare(b)).map(([date,value])=>({date,value}))
+  const topModels = Object.entries(byModel).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([name,value])=>({name,value}))
+  const hours = Array.from({length:24},(_,i)=>String(i).padStart(2,'0')).map(h=>({hour:h,value:byHour[h]||0}))
+  const conversion = total ? Math.round(high*100/total) : 0
 
   return {
-    total, high, conversion,
-    bySource, timeline, topModels, hours,
-    has: { source: Object.keys(bySource).length>0, created: timeline.length>0 }
+    total,
+    high,
+    conversion,
+    bySource: bySource,
+    timeline,
+    topModels,
+    hours
   }
 }

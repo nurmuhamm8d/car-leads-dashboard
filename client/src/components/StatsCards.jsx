@@ -1,18 +1,36 @@
-export default function StatsCards({ total, high, conversion }){
-  const cards = [
-    { k:'Всего лидов',  v: total,       tone:'gray' },
-    { k:'Высокое качество', v: high,    tone:'green' },
-    { k:'Конверсия в высокие', v: `${conversion}%`, tone:'amber' },
-    { k:'Обновление', v:'в реальном времени', tone:'gray' },
-  ]
+import React from 'react'
+
+export default function StatsCards({ total=0, high=0, conversion=0 }) {
   return (
     <div className="grid-2">
-      {cards.map((c,i)=>(
-        <div key={i} className="stat">
-          <div className="k">{c.k}</div>
-          <div className="v">{c.v}</div>
+      <div className="card kpi">
+        <div className="icon">👥</div>
+        <div>
+          <div className="val">{total}</div>
+          <div className="lbl">Всего лидов</div>
         </div>
-      ))}
+      </div>
+      <div className="card kpi">
+        <div className="icon">⭐</div>
+        <div>
+          <div className="val">{high}</div>
+          <div className="lbl">Высокое качество</div>
+        </div>
+      </div>
+      <div className="card kpi">
+        <div className="icon">📈</div>
+        <div>
+          <div className="val">{conversion}%</div>
+          <div className="lbl">Конверсия в высокие</div>
+        </div>
+      </div>
+      <div className="card kpi">
+        <div className="icon">⏱️</div>
+        <div>
+          <div className="val">实时</div>
+          <div className="lbl">Обновление в реальном времени</div>
+        </div>
+      </div>
     </div>
   )
 }

@@ -35,7 +35,7 @@ export default function Home() {
   }, [])
 
   const rows = useMemo(()=> filterRows(raw, filters), [raw, filters])
-  const facets = useMemo(()=> collectFacetOptions(rows), [rows])
+  const facets = useMemo(()=> collectFacetOptions(raw), [raw])
   const stats = useMemo(()=> computeAnalytics(rows), [rows])
 
   const onExportJson = () => {
@@ -48,37 +48,34 @@ export default function Home() {
 
   return (
     <div className="container-app">
-      <h1 style={{margin:'0 0 6px'}}>Home</h1>
-      <div className="muted">{updatedAt ? `Обновлено ${timeAgo(updatedAt)} назад` : 'Загрузка...'}</div>
+      <div className="h1">Home</div>
+      <div className="subtle">{updatedAt ? `Обновлено ${timeAgo(updatedAt)} назад` : 'Загрузка...'}</div>
 
-      <div className="card card-pad" style={{marginTop:14}}>
+      <div className="card card-pad" style={{marginTop:16}}>
         <FiltersBar facets={facets} state={filters} onChange={setFilters} onExport={onExportJson} />
       </div>
 
-      <div style={{height:14}}/>
+      <div style={{marginTop:20}}>
+        <StatsCards total={stats.total} high={stats.high} conversion={stats.conversion} />
+      </div>
 
-      <StatsCards total={stats.total} high={stats.high} conversion={stats.conversion} />
+      <div style={{marginTop:20}}>
+        <ChartsPanel
+          bySource={Object.keys(stats.bySource||{}).length? stats.bySource : null}
+          timeline={stats.timeline}
+          topModels={stats.topModels}
+          hours={stats.hours}
+        />
+      </div>
 
-      <div style={{height:18}}/>
+      <div style={{marginTop:20}}>
+        {error ? <div className="card card-pad" style={{color:'#dc2626'}}>{error}</div> :
+          <div className="card card-pad">
+            <LeadsTable rows={rows} onRowClick={setSelected} />
+          </div>}
+      </div>
 
-      <ChartsPanel
-        bySource={(stats.bySource || {}) as Record<string, number>}
-        timeline={stats.timeline as any}
-        topModels={stats.topModels as any}
-        hours={stats.hours as any}
-        has={stats.has as any}
-      />
-
-      <div style={{height:18}}/>
-
-      {error ? <div className="card card-pad" style={{color:'var(--bad)'}}>{error}</div> : (
-        <div className="card card-pad">
-          <div className="card-title">Все лиды</div>
-          <LeadsTable rows={rows} onRowClick={setSelected} />
-        </div>
-      )}
       <LeadModal open={!!selected} onClose={()=>setSelected(null)} lead={selected} />
-      <div className="footer-space"/>
     </div>
   )
 }
