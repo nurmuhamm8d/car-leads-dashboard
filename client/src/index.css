@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+:root {
+  --bg-from: 18 18 20;
+  --bg-to: 12 12 14;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(800px 400px at 20% 0%, rgba(59,130,246,.14), transparent 60%),
+    radial-gradient(800px 400px at 80% 0%, rgba(16,185,129,.12), transparent 60%),
+    linear-gradient(to bottom, rgb(var(--bg-from)) 0%, rgb(var(--bg-to)) 100%);
+  color: rgb(244 244 245);
+}
+
+.card {
+  border-radius: 1rem;
+  background-color: rgb(24 24 27);
+  border: 1px solid rgb(39 39 42);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
