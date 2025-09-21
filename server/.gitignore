@@ -1,0 +1,20 @@
+﻿# Node
+node_modules/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Builds
+dist/
+build/
+coverage/
+
+# Env
+.env
+.env.*
+.env.example
+
+# Vite
+client/dist/
+server/dist/

@@ -38,9 +38,6 @@ export default function Home() {
   const facets = useMemo(()=> collectFacetOptions(raw), [raw])
   const stats = useMemo(()=> computeAnalytics(rows), [rows])
 
-  const safeBySource: Record<string, number> | undefined =
-    stats.bySource && Object.keys(stats.bySource).length ? stats.bySource as Record<string, number> : undefined
-
   const onExportJson = () => {
     const a = document.createElement('a')
     const blob = new Blob([JSON.stringify(rows.map(normalizeLead), null, 2)], {type: 'application/json'})
@@ -58,18 +55,21 @@ export default function Home() {
         <FiltersBar facets={facets} state={filters} onChange={setFilters} onExport={onExportJson} />
       </div>
 
-      <StatsCards total={stats.total} high={stats.high} conversion={stats.conversion} />
+      {/* Статистика: сетка 2×2 на больших — 1×? на мобилке */}
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+        <StatsCards total={stats.total} high={stats.high} conversion={stats.conversion} />
+      </div>
 
       <ChartsPanel
-        bySource={safeBySource}
-        timeline={stats.timeline ?? []}
-        topModels={stats.topModels ?? []}
-        hours={stats.hours ?? []}
-        has={stats.has ?? {}}
+        bySource={(stats.bySource ?? {}) as Record<string, number>}
+        timeline={stats.timeline as any}
+        topModels={stats.topModels as any}
+        hours={stats.hours as any}
+        has={stats.has as any}
       />
 
-      {error ? <div className="error">{error}</div> : (
-        <div className="card p-4">
+      {error ? <div className="text-red-600">{error}</div> : (
+        <div className="card p-0">
           <LeadsTable rows={rows} onRowClick={setSelected} />
         </div>
       )}

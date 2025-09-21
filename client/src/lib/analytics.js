@@ -76,6 +76,11 @@ function mapQuality(v = '') {
   return 'unknown'
 }
 
+function parseTs(ts) {
+    const d = dayjs(String(ts).trim(), ['DD.MM.YYYY, HH:mm:ss', 'DD.MM.YYYY HH:mm:ss'], true)
+    return d.isValid() ? d : null
+}
+
 function normalizeDate(v = '') {
   if (!v) return null
   const formats = [
