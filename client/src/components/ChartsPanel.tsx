@@ -1,3 +1,4 @@
+import React from 'react'
 import {
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend,
   LineChart, Line, CartesianGrid, XAxis, YAxis,
@@ -8,7 +9,7 @@ type SourceMap = Record<string, number>
 type TimelinePoint = { date: string; value: number }
 type ModelPoint = { name: string; value: number }
 type HourPoint = { hour: string; value: number }
-type HasFlags = { source: boolean; created: boolean }
+type HasFlags = { source:boolean; created:boolean }
 
 type Props = {
   bySource?: SourceMap | null
@@ -18,80 +19,74 @@ type Props = {
   has?: HasFlags
 }
 
-const COLORS = ['#5B60EA', '#22C55E', '#F59E0B', '#EF4444', '#06B6D4', '#8B5CF6', '#10B981']
-const SURFACE = 'var(--card)'
-const GRID = '#E7EAF1'
-const TEXT = 'var(--text)'
+const COLORS = ['var(--series-1)','var(--series-2)','var(--series-3)','var(--series-4)','var(--series-5)']
 
 function Empty({ text }: { text: string }) {
-  return <div className="h-[260px] flex items-center justify-center text-slate-400">{text}</div>
+  return <div className="card card-pad" style={{display:'grid',placeItems:'center',height:260,color:'var(--muted)'}}>{text}</div>
 }
 
-export default function ChartsPanel ({
-  bySource, timeline, topModels, hours, has,
-}: Props) {
-  const sourceData = Object.entries(bySource ?? {}).map(([name, value]) => ({ name, value }))
+export default function ChartsPanel({ bySource, timeline, topModels, hours, has }: Props){
+  const sources = Object.entries(bySource || {}).map(([name, value])=>({name, value}))
+  const models = topModels || []
+  const daily = timeline || []
+  const byHour = hours || []
 
   return (
-    <section className="grid gap-6 grid-cols-1 xl:grid-cols-3">
-      {/* Источники (пирог) */}
-      <div className="card">
-        <h3 className="card-title">Распределение по источникам</h3>
-        {sourceData.length === 0 ? <Empty text="Нет данных по источникам" /> : (
-          <div className="chart-wrap">
-            <ResponsiveContainer>
-              <PieChart>
-                <Tooltip />
-                <Legend />
-                <Pie
-                  data={sourceData}
-                  dataKey="value"
-                  nameKey="name"
-                  innerRadius={60}
-                  outerRadius={90}
-                  stroke={SURFACE}
-                >
-                  {sourceData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                </Pie>
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+    <div className="grid-3">
+      <div className="card card-pad">
+        <div className="card-title">Распределение по источникам</div>
+        {sources.length === 0 ? <Empty text="Нет данных" /> : (
+          <>
+            <div style={{height:260}}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={sources} innerRadius={60} outerRadius={90} paddingAngle={2} dataKey="value" nameKey="name">
+                    {sources.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]} />)}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="legend">
+              {sources.map((s,i)=>(
+                <span key={s.name}><i style={{background:COLORS[i%COLORS.length]}}/> {s.name}</span>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
-      {/* Динамика по дням */}
-      <div className="card">
-        <h3 className="card-title">Динамика лидов по дням</h3>
-        {(timeline?.length ?? 0) === 0 ? <Empty text="Нет данных по датам" /> : (
-          <div className="chart-wrap">
-            <ResponsiveContainer>
-              <LineChart data={timeline!}>
-                <CartesianGrid strokeDasharray="4 4" stroke={GRID} />
-                <XAxis dataKey="date" stroke={TEXT} />
-                <YAxis width={36} stroke={TEXT}/>
+      <div className="card card-pad">
+        <div className="card-title">Динамика лидов по дням</div>
+        {daily.length===0 ? <Empty text="Нет данных" /> : (
+          <div style={{height:260}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={daily} margin={{left:8,right:12,top:4,bottom:0}}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis width={28}/>
                 <Tooltip />
                 <Legend />
-                <Line type="monotone" dataKey="value" name="Лиды" stroke="#5B60EA" dot={{ r: 3 }} />
+                <Line type="monotone" dataKey="value" name="Лиды" stroke="var(--series-1)" strokeWidth={2} dot={{r:3}} activeDot={{r:5}}/>
               </LineChart>
             </ResponsiveContainer>
           </div>
         )}
       </div>
 
-      {/* Топ-5 моделей */}
-      <div className="card">
-        <h3 className="card-title">Топ-5 моделей</h3>
-        {(topModels?.length ?? 0) === 0 ? <Empty text="Нет данных по моделям" /> : (
-          <div className="chart-wrap">
-            <ResponsiveContainer>
-              <BarChart data={topModels!}>
-                <CartesianGrid strokeDasharray="4 4" stroke={GRID} />
-                <XAxis dataKey="name" stroke={TEXT} interval={0} height={52} angle={0}/>
-                <YAxis width={36} stroke={TEXT} />
+      <div className="card card-pad">
+        <div className="card-title">Топ-5 моделей</div>
+        {models.length===0 ? <Empty text="Нет данных" /> : (
+          <div style={{height:260}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={models} margin={{left:8,right:12,top:4,bottom:0}}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis width={28}/>
                 <Tooltip />
                 <Legend />
                 <Bar dataKey="value" name="Лиды по моделям">
-                  {topModels!.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                  {models.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]} />)}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
@@ -99,24 +94,22 @@ export default function ChartsPanel ({
         )}
       </div>
 
-      {/* Часы — на всю ширину */}
-      <div className="card xl:col-span-3">
-        <h3 className="card-title">Распределение по часам</h3>
-        {(hours?.length ?? 0) === 0 ? <Empty text="Нет данных по часам" /> : (
-          <div className="chart-wrap">
-            <ResponsiveContainer>
-              <BarChart data={hours!}>
-                <CartesianGrid strokeDasharray="4 4" stroke={GRID} />
-                <XAxis dataKey="hour" stroke={TEXT} />
-                <YAxis width={36} stroke={TEXT}/>
+      <div className="card card-pad" style={{gridColumn:'1 / -1'}}>
+        <div className="card-title">Распределение по часам</div>
+        {byHour.length===0 ? <Empty text="Нет данных" /> : (
+          <div style={{height:280}}>
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={byHour} margin={{left:8,right:12,top:4,bottom:0}}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="hour" />
+                <YAxis width={28}/>
                 <Tooltip />
-                <Legend />
-                <Bar dataKey="value" name="Лиды в час" fill="#5B60EA" />
+                <Bar dataKey="value" name="Лиды в час" fill="var(--series-3)" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         )}
       </div>
-    </section>
+    </div>
   )
 }

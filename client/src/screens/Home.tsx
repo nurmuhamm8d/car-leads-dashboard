@@ -14,7 +14,7 @@ export default function Home() {
   const [raw, setRaw] = useState<any[]>([])
   const [updatedAt, setUpdatedAt] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [filters, setFilters] = useState({ q:'', quality:'all', source:'all', model:'all', from:null, to:null })
+  const [filters, setFilters] = useState({ q:'', quality:'all', source:'all', model:'all', from:null as any, to:null as any })
   const [selected, setSelected] = useState<any | null>(null)
 
   async function load() {
@@ -35,7 +35,7 @@ export default function Home() {
   }, [])
 
   const rows = useMemo(()=> filterRows(raw, filters), [raw, filters])
-  const facets = useMemo(()=> collectFacetOptions(raw), [raw])
+  const facets = useMemo(()=> collectFacetOptions(rows), [rows])
   const stats = useMemo(()=> computeAnalytics(rows), [rows])
 
   const onExportJson = () => {
@@ -47,33 +47,38 @@ export default function Home() {
   }
 
   return (
-    <div className="container-app space-y-6">
-      <div className="page-title">Home</div>
+    <div className="container-app">
+      <h1 style={{margin:'0 0 6px'}}>Home</h1>
       <div className="muted">{updatedAt ? `Обновлено ${timeAgo(updatedAt)} назад` : 'Загрузка...'}</div>
 
-      <div className="card p-4">
+      <div className="card card-pad" style={{marginTop:14}}>
         <FiltersBar facets={facets} state={filters} onChange={setFilters} onExport={onExportJson} />
       </div>
 
-      {/* Статистика: сетка 2×2 на больших — 1×? на мобилке */}
-      <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
-        <StatsCards total={stats.total} high={stats.high} conversion={stats.conversion} />
-      </div>
+      <div style={{height:14}}/>
+
+      <StatsCards total={stats.total} high={stats.high} conversion={stats.conversion} />
+
+      <div style={{height:18}}/>
 
       <ChartsPanel
-        bySource={(stats.bySource ?? {}) as Record<string, number>}
+        bySource={(stats.bySource || {}) as Record<string, number>}
         timeline={stats.timeline as any}
         topModels={stats.topModels as any}
         hours={stats.hours as any}
         has={stats.has as any}
       />
 
-      {error ? <div className="text-red-600">{error}</div> : (
-        <div className="card p-0">
+      <div style={{height:18}}/>
+
+      {error ? <div className="card card-pad" style={{color:'var(--bad)'}}>{error}</div> : (
+        <div className="card card-pad">
+          <div className="card-title">Все лиды</div>
           <LeadsTable rows={rows} onRowClick={setSelected} />
         </div>
       )}
       <LeadModal open={!!selected} onClose={()=>setSelected(null)} lead={selected} />
+      <div className="footer-space"/>
     </div>
   )
 }
