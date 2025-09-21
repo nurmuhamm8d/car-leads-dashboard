@@ -1,126 +1,80 @@
 @import "tailwindcss";
 
-:root{
-  --bg:#f6f8fa;
-  --card:#ffffff;
-  --text:#0f172a;
-  --muted:#64748b;
-  --line:#e5e7eb;
-  --brand:#16a34a;
-  --brand-2:#22c55e;
-  --brand-3:#10b981;
-  --accent:#0ea5e9;
-  --warn:#f59e0b;
-  --danger:#ef4444;
-  --shadow:0 8px 24px rgba(2,6,23,.06);
+:root {
+  color-scheme: light;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --ring: #e2e8f0;
+  --primary: #6366f1;
+  --success: #22c55e;
+  --warn: #f59e0b;
+  --danger: #ef4444;
+  --accent1: #06b6d4;
+  --accent2: #8b5cf6;
+  --accent3: #84cc16;
 }
 
-html,body,#root{height:100%}
-body{
-  background:var(--bg);
-  color:var(--text);
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+html, body, #root { height: 100%; }
+
+.container-app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
 }
 
-.container-page{
-  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+.card {
+  background: var(--card);
+  border: 1px solid var(--ring);
+  border-radius: 16px;
+  box-shadow: 0 6px 16px rgb(15 23 42 / 6%);
 }
 
-.card{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:16px;
-  box-shadow:var(--shadow);
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem .9rem;
+  border-radius: 10px;
+  border: 1px solid var(--ring);
+  background: #fff;
 }
 
-.card-header{
-  @apply text-sm font-medium mb-3;
-  color:var(--muted);
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 .6rem;
+  border-radius: 999px;
+  font-size: 12px;
+  background: #eef2ff;
+  color: var(--primary);
 }
 
-.metric{
-  @apply text-5xl font-semibold;
-  line-height:1.1;
-}
+.badge.success { background:#ecfdf5; color:var(--success); }
+.badge.warn { background:#fffbeb; color:var(--warn); }
+.badge.danger { background:#fef2f2; color:var(--danger); }
 
-.badge{
-  @apply inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs;
-  background:#ecfdf5;
-  color:#065f46;
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
 }
-
-.btn{
-  @apply inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium;
-  background:var(--brand);
-  color:white;
+.table thead th {
+  position: sticky;
+  top: 0;
+  background: #f1f5f9;
+  color: var(--muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ring);
 }
-.btn:hover{ filter:brightness(.95) }
-
-.input, .select{
-  @apply rounded-lg border px-3 py-2 text-sm;
-  border-color:var(--line);
-  background:white;
+.table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #eef2f7;
 }
-
-.kit-section{
-  @apply grid gap-6;
-}
-
-.recharts-default-tooltip{
-  background:#ffffff !important;
-  border:1px solid var(--line) !important;
-  border-radius:10px !important;
-  box-shadow:var(--shadow) !important;
-}
-
-.legend-title{
-  @apply text-xs text-gray-500;
-}
-
-/* таблица */
-.table{
-  @apply w-full border-collapse rounded-xl overflow-hidden;
-  border:1px solid var(--line);
-  background:white;
-}
-.table thead th{
-  @apply text-left text-sm font-semibold;
-  background:#f9fafb;
-  border-bottom:1px solid var(--line);
-  padding:.9rem 1rem;
-}
-.table tbody td{
-  @apply text-sm align-top;
-  border-bottom:1px solid var(--line);
-  padding:1rem;
-}
-
-/* верхняя панель */
-.header{
-  background:linear-gradient(180deg,#ffffff,rgba(255,255,255,.85));
-  border-bottom:1px solid var(--line);
-}
-.header-inner{
-  @apply flex items-center justify-between h-14;
-}
-.logo{
-  @apply font-semibold text-lg;
-  color:var(--brand);
-}
-
-/* лёгкие отступы блоков на главной */
-.grid-3{
-  @apply grid gap-6;
-  grid-template-columns:repeat(12,minmax(0,1fr));
-}
-.grid-3 > .span-4{ grid-column:span 4 / span 4 }
-.grid-3 > .span-6{ grid-column:span 6 / span 6 }
-.grid-3 > .span-8{ grid-column:span 8 / span 8 }
-.grid-3 > .span-12{ grid-column:1 / -1 }
-
-/* для печати в PDF — белый фон и границы */
-@media print{
-  body{ background:white }
-  .card{ box-shadow:none; border:1px solid #d1d5db }
+.table tbody tr:hover {
+  background: #f9fafb;
 }

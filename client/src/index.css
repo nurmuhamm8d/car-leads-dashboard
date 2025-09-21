@@ -1,25 +1,56 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans:wght@400;600&display=swap');
 
-:root {
-  --bg-from: 18 18 20;
-  --bg-to: 12 12 14;
+:root{
+  --bg:#f6f7fb;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+  --brand:#4f46e5;
+  --accent:#10b981;
+  --warn:#f59e0b;
+  --danger:#ef4444;
+  --radius:16px;
+  --shadow:0 6px 24px rgba(17,24,39,.08);
 }
 
-html, body, #root {
-  height: 100%;
+*{box-sizing:border-box}
+html,body,#root{height:100%}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family: Inter, "Noto Sans", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
 }
 
-body {
-  background:
-    radial-gradient(800px 400px at 20% 0%, rgba(59,130,246,.14), transparent 60%),
-    radial-gradient(800px 400px at 80% 0%, rgba(16,185,129,.12), transparent 60%),
-    linear-gradient(to bottom, rgb(var(--bg-from)) 0%, rgb(var(--bg-to)) 100%);
-  color: rgb(244 244 245);
+.container-app{max-width:1240px;margin:0 auto;padding:24px}
+.page-title{font-size:24px;font-weight:700}
+.muted{font-size:14px;color:var(--muted)}
+.error{color:var(--danger)}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
 }
 
-.card {
-  border-radius: 1rem;
-  background-color: rgb(24 24 27);
-  border: 1px solid rgb(39 39 42);
-  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+.p-4{padding:16px}
+
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}
+.col-span-3{grid-column:span 3 / span 3}
+.gap-16{gap:16px}
+
+.card-title{font-weight:600;margin-bottom:8px}
+.chart-wrap{height:100%}
+.empty{padding:24px;color:var(--muted);text-align:center}
+
+.stat-card{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+.stat-title{font-size:13px;color:var(--muted)}
+.stat-value{font-size:28px;font-weight:700}
+
+button, .btn{
+  display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;color:#111827;cursor:pointer;
 }
+button:hover, .btn:hover{box-shadow:0 8px 24px rgba(17,24,39,.12)}

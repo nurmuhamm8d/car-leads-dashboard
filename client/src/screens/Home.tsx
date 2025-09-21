@@ -8,28 +8,13 @@ import ChartsPanel from '../components/ChartsPanel'
 import LeadsTable from '../components/LeadsTable.jsx'
 import LeadModal from '../components/LeadModal.jsx'
 
-type SourceMap = Record<string, number>
-type TimelinePoint = { date: string; value: number }
-type ModelPoint = { name: string; value: number }
-type HourPoint = { hour: string; value: number }
-type Stats = {
-  total: number
-  high: number
-  conversion: number
-  bySource: SourceMap
-  timeline: TimelinePoint[]
-  topModels: ModelPoint[]
-  hours: HourPoint[]
-  has: { source: boolean; created: boolean }
-}
-
 let REFRESH_MS = 30000
 
 export default function Home() {
   const [raw, setRaw] = useState<any[]>([])
   const [updatedAt, setUpdatedAt] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [filters, setFilters] = useState({ q: '', quality: 'all', source: 'all', model: 'all', from: null as any, to: null as any })
+  const [filters, setFilters] = useState({ q:'', quality:'all', source:'all', model:'all', from:null, to:null })
   const [selected, setSelected] = useState<any | null>(null)
 
   async function load() {
@@ -38,7 +23,7 @@ export default function Home() {
       setRaw(Array.isArray(data) ? data : [])
       setUpdatedAt(updatedAt ?? null)
       setError(null)
-    } catch (e: any) {
+    } catch (e:any) {
       setError(e?.message || 'Load error')
     }
   }
@@ -49,30 +34,46 @@ export default function Home() {
     return () => clearInterval(t)
   }, [])
 
-  const rows = useMemo(() => filterRows(raw, filters), [raw, filters])
-  const facets = useMemo(() => collectFacetOptions(raw), [raw])
-  const stats = useMemo<Stats>(() => computeAnalytics(rows) as unknown as Stats, [rows])
+  const rows = useMemo(()=> filterRows(raw, filters), [raw, filters])
+  const facets = useMemo(()=> collectFacetOptions(raw), [raw])
+  const stats = useMemo(()=> computeAnalytics(rows), [rows])
+
+  const safeBySource: Record<string, number> | undefined =
+    stats.bySource && Object.keys(stats.bySource).length ? stats.bySource as Record<string, number> : undefined
 
   const onExportJson = () => {
     const a = document.createElement('a')
-    const blob = new Blob([JSON.stringify(rows.map(normalizeLead), null, 2)], { type: 'application/json' })
+    const blob = new Blob([JSON.stringify(rows.map(normalizeLead), null, 2)], {type: 'application/json'})
     a.href = URL.createObjectURL(blob)
     a.download = 'leads.json'
     a.click()
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      <div className="text-2xl font-semibold">Home</div>
-      <div className="text-sm text-zinc-400">{updatedAt ? `Обновлено ${timeAgo(updatedAt)} назад` : 'Загрузка...'}</div>
+    <div className="container-app space-y-6">
+      <div className="page-title">Home</div>
+      <div className="muted">{updatedAt ? `Обновлено ${timeAgo(updatedAt)} назад` : 'Загрузка...'}</div>
 
-      <FiltersBar facets={facets} state={filters} onChange={setFilters} onExport={onExportJson} />
+      <div className="card p-4">
+        <FiltersBar facets={facets} state={filters} onChange={setFilters} onExport={onExportJson} />
+      </div>
 
       <StatsCards total={stats.total} high={stats.high} conversion={stats.conversion} />
-      <ChartsPanel bySource={stats.bySource} timeline={stats.timeline} topModels={stats.topModels} hours={stats.hours} has={stats.has} />
 
-      {error ? <div className="text-red-400">{error}</div> : <LeadsTable rows={rows} onRowClick={setSelected} />}
-      <LeadModal open={!!selected} onClose={() => setSelected(null)} lead={selected} />
+      <ChartsPanel
+        bySource={safeBySource}
+        timeline={stats.timeline ?? []}
+        topModels={stats.topModels ?? []}
+        hours={stats.hours ?? []}
+        has={stats.has ?? {}}
+      />
+
+      {error ? <div className="error">{error}</div> : (
+        <div className="card p-4">
+          <LeadsTable rows={rows} onRowClick={setSelected} />
+        </div>
+      )}
+      <LeadModal open={!!selected} onClose={()=>setSelected(null)} lead={selected} />
     </div>
   )
 }
