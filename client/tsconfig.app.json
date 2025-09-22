@@ -1,19 +1,17 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo/app.tsbuildinfo",
     "target": "ES2020",
-    "useDefineForClassFields": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "module": "ESNext",
-    "skipLibCheck": true,
-    "moduleResolution": "Bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx",
+    "lib": ["ES2020", "DOM"],
+    "moduleResolution": "Bundler",
     "allowJs": true,
-    "strictNullChecks": true,
-    "strict": true
+    "checkJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "noEmit": true,
+    "strict": true,
+    "types": ["react", "react-dom"]
   },
   "include": ["src"]
 }

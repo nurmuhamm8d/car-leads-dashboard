@@ -1,96 +1,30 @@
 import React from 'react'
-import {
-  ResponsiveContainer,
-  PieChart, Pie, Cell, Tooltip, Legend,
-  LineChart, Line, XAxis, YAxis, CartesianGrid,
-  BarChart, Bar
-} from 'recharts'
-
-type TimelinePoint = { date: string; value: number }
-type ModelPoint = { name: string; value: number }
-type HourPoint = { hour: string; value: number }
-type Props = {
-  bySource?: Record<string, number> | null
-  timeline?: TimelinePoint[] | null
-  topModels?: ModelPoint[] | null
-  hours?: HourPoint[] | null
-}
-
-const COLORS = ['#0ea5e9','#22c55e','#f59e0b','#ef4444','#8b5cf6','#14b8a6','#3b82f6']
-
-export default function ChartsPanel({ bySource, timeline, topModels, hours }: Props) {
-  const pieData = Object.entries(bySource || {}).map(([name,value])=>({name, value}))
-  return (
-    <div className="grid-2">
-      <div className="card chart-card">
-        <div className="chart-head">
-          <div className="chart-title">Распределение по источникам</div>
-          <div className="legend">
-            {pieData.map((d,i)=>(
-              <span key={d.name} className="badge">
-                <span className="dot" style={{background:COLORS[i%COLORS.length]}}/>
-                {d.name}
-              </span>
-            ))}
-          </div>
-        </div>
-        <div style={{height:300}}>
-          <ResponsiveContainer>
-            <PieChart>
-              <Pie data={pieData} dataKey="value" nameKey="name" innerRadius={70} outerRadius={110} stroke="#fff" strokeWidth={2}>
-                {pieData.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </div>
+import { ResponsiveContainer, LineChart, Line, Tooltip, XAxis, YAxis, PieChart, Pie, Cell, Legend, CartesianGrid, BarChart, Bar } from 'recharts'
+type Props={byDay:{day:string,count:number}[],bySource:{name:string,value:number}[],topModels:{name:string,value:number}[],byHour:{hour:string,value:number}[],bySourceQuality:{name:string,value:number}[]}
+const COLORS=['#22d3ee','#4f8cff','#f59e0b','#ef4444','#16a34a']
+const axis={fill:'#8a97b1'}
+export default function ChartsPanel({byDay,bySource,topModels,byHour,bySourceQuality}:Props){
+  return(
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+      <div className="card p-4 h-80">
+        <div className="text-sm text-[var(--muted)] mb-2">Динамика по дням</div>
+        <ResponsiveContainer width="100%" height="100%"><LineChart data={byDay} margin={{left:16,right:10,bottom:10}}><CartesianGrid stroke="#263146" strokeDasharray="3 3"/><XAxis dataKey="day" tick={axis} stroke="#263146"/><YAxis allowDecimals={false} tick={axis} stroke="#263146"/><Tooltip/><Line type="monotone" dataKey="count" stroke="#4f8cff" strokeWidth={2} dot={false}/></LineChart></ResponsiveContainer>
       </div>
-
-      <div className="card chart-card">
-        <div className="chart-head"><div className="chart-title">Динамика лидов по дням</div></div>
-        <div style={{height:300}}>
-          <ResponsiveContainer>
-            <LineChart data={timeline || []} margin={{left:8,right:8,top:10,bottom:4}}>
-              <CartesianGrid stroke="#eef2f7" />
-              <XAxis dataKey="date" tick={{fontSize:12}} />
-              <YAxis width={36} tick={{fontSize:12}} />
-              <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="#0ea5e9" strokeWidth={3} dot={{r:4}} activeDot={{r:6}} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="card p-4 h-80">
+        <div className="text-sm text-[var(--muted)] mb-2">Распределение по источникам</div>
+        <ResponsiveContainer width="100%" height="100%"><PieChart><Pie data={bySource} dataKey="value" nameKey="name" innerRadius={60} outerRadius={90}>{bySource.map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]}/>)}</Pie><Legend/><Tooltip/></PieChart></ResponsiveContainer>
       </div>
-
-      <div className="card chart-card">
-        <div className="chart-head"><div className="chart-title">Топ-5 моделей</div></div>
-        <div style={{height:300}}>
-          <ResponsiveContainer>
-            <BarChart data={topModels || []} margin={{left:8,right:8,top:10,bottom:4}}>
-              <CartesianGrid stroke="#eef2f7" />
-              <XAxis dataKey="name" tick={{fontSize:12}} />
-              <YAxis width={36} tick={{fontSize:12}} />
-              <Tooltip />
-              <Bar dataKey="value" radius={[6,6,0,0]}>
-                {(topModels||[]).map((_,i)=><Cell key={i} fill={COLORS[i%COLORS.length]} />)}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="card p-4 h-80">
+        <div className="text-sm text-[var(--muted)] mb-2">Топ-5 моделей</div>
+        <ResponsiveContainer width="100%" height="100%"><BarChart data={topModels} margin={{left:16,right:10,bottom:24}}><CartesianGrid stroke="#263146" strokeDasharray="3 3"/><XAxis dataKey="name" interval={0} tickLine={false} tick={axis} stroke="#263146"/><YAxis allowDecimals={false} tick={axis} stroke="#263146"/><Tooltip/><Bar dataKey="value" fill="#22d3ee"/></BarChart></ResponsiveContainer>
       </div>
-
-      <div className="card chart-card">
-        <div className="chart-head"><div className="chart-title">Лиды по часам</div></div>
-        <div style={{height:300}}>
-          <ResponsiveContainer>
-            <BarChart data={hours || []} margin={{left:8,right:8,top:10,bottom:4}}>
-              <CartesianGrid stroke="#eef2f7" />
-              <XAxis dataKey="hour" tick={{fontSize:12}} />
-              <YAxis width={36} tick={{fontSize:12}} />
-              <Tooltip />
-              <Bar dataKey="value" fill="#94a3b8" radius={[6,6,0,0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+      <div className="card p-4 h-80">
+        <div className="text-sm text-[var(--muted)] mb-2">Лиды по часам</div>
+        <ResponsiveContainer width="100%" height="100%"><BarChart data={byHour} margin={{left:16,right:10,bottom:10}}><CartesianGrid stroke="#263146" strokeDasharray="3 3"/><XAxis dataKey="hour" tick={axis} stroke="#263146"/><YAxis allowDecimals={false} tick={axis} stroke="#263146"/><Tooltip/><Bar dataKey="value" fill="#4f8cff"/></BarChart></ResponsiveContainer>
+      </div>
+      <div className="card p-4 h-80 lg:col-span-2">
+        <div className="text-sm text-[var(--muted)] mb-2">Эффективность источников (доля «Высокий», %)</div>
+        <ResponsiveContainer width="100%" height="100%"><BarChart data={bySourceQuality} margin={{left:16,right:10,bottom:10}}><CartesianGrid stroke="#263146" strokeDasharray="3 3"/><XAxis dataKey="name" interval={0} tickLine={false} tick={axis} stroke="#263146"/><YAxis allowDecimals={false} tick={axis} stroke="#263146"/><Tooltip/><Bar dataKey="value" fill="#16a34a"/></BarChart></ResponsiveContainer>
       </div>
     </div>
   )

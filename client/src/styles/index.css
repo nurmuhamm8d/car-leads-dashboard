@@ -1,80 +1,27 @@
 @import "tailwindcss";
 
-:root {
-  color-scheme: light;
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --ring: #e2e8f0;
-  --primary: #6366f1;
-  --success: #22c55e;
-  --warn: #f59e0b;
-  --danger: #ef4444;
-  --accent1: #06b6d4;
-  --accent2: #8b5cf6;
-  --accent3: #84cc16;
+@theme {
+  --radius-xl2: 1rem;
 }
 
-html, body, #root { height: 100%; }
+:root { --bg:#0b1220; --panel:#0f172a; --card:#111a2e; --border:#1e2b43; --muted:#8a97b1; --primary:#4f8cff; --accent:#22d3ee; --danger:#ef4444; --warn:#f59e0b; --success:#16a34a }
 
-.container-app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-}
+html,body,#root { height:100% }
+body { background:var(--bg); color:#fff; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale }
 
-.card {
-  background: var(--card);
-  border: 1px solid var(--ring);
-  border-radius: 16px;
-  box-shadow: 0 6px 16px rgb(15 23 42 / 6%);
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: .5rem;
-  padding: .5rem .9rem;
-  border-radius: 10px;
-  border: 1px solid var(--ring);
-  background: #fff;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  height: 26px;
-  padding: 0 .6rem;
-  border-radius: 999px;
-  font-size: 12px;
-  background: #eef2ff;
-  color: var(--primary);
-}
-
-.badge.success { background:#ecfdf5; color:var(--success); }
-.badge.warn { background:#fffbeb; color:var(--warn); }
-.badge.danger { background:#fef2f2; color:var(--danger); }
-
-.table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-}
-.table thead th {
-  position: sticky;
-  top: 0;
-  background: #f1f5f9;
-  color: var(--muted);
-  font-weight: 600;
-  text-align: left;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--ring);
-}
-.table tbody td {
-  padding: 12px 16px;
-  border-bottom: 1px solid #eef2f7;
-}
-.table tbody tr:hover {
-  background: #f9fafb;
+@layer components {
+  .card { @apply bg-[var(--card)] border border-[var(--border)] rounded-xl2 shadow-[0_10px_30px_rgba(0,0,0,.25)] }
+  .pill { @apply px-3 py-1 rounded-full text-xs font-medium border border-[var(--border)] bg-[var(--panel)] }
+  .btn { @apply inline-flex h-10 items-center px-4 rounded-full bg-[var(--panel)] border border-[var(--border)] transition }
+  .btn-primary { @apply bg-[var(--primary)] text-white border-transparent }
+  .input { @apply h-10 w-full rounded-full bg-[var(--panel)] border border-[var(--border)] px-4 outline-none }
+  .select { @apply h-10 rounded-full bg-[var(--panel)] border border-[var(--border)] px-4 outline-none appearance-none }
+  .badge { @apply px-2.5 py-0.5 rounded-full text-xs font-semibold }
+  .table { @apply w-full border-separate border-spacing-y-3 }
+  .th { @apply text-xs uppercase tracking-wide text-[var(--muted)] px-3 pb-2 }
+  .td { @apply px-3 py-2 bg-[var(--card)] border border-[var(--border)] text-sm }
+  .td-first { @apply rounded-l-xl2 }
+  .td-last { @apply rounded-r-xl2 }
+  .progress { @apply h-2 rounded-full bg-[var(--panel)] overflow-hidden }
+  .progress > div { @apply h-full bg-[var(--accent)] }
 }

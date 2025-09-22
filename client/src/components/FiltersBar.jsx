@@ -1,26 +1,20 @@
 import React from 'react'
-
-export default function FiltersBar({ facets, state, onChange, onExport }) {
-  const set=(k,v)=>onChange({...state,[k]:v})
-  return (
-    <div className="toolbar">
-      <input className="input" placeholder="Поиск по имени/телефону/заметкам" value={state.q} onChange={e=>set('q',e.target.value)} />
-      <select className="select" value={state.quality} onChange={e=>set('quality',e.target.value)}>
-        <option value="all">Все</option>
-        {facets.qualities.map(v=><option key={v} value={v}>{v}</option>)}
+export default function FiltersBar({ q,setQ,quality,setQuality,source,setSource,dateFrom,setDateFrom,dateTo,setDateTo,model,setModel,onClear }){
+  return(
+    <div className="card p-4 grid grid-cols-1 lg:grid-cols-6 gap-3">
+      <input className="input lg:col-span-2" placeholder="Имя или телефон" value={q} onChange={e=>setQ(e.target.value)} />
+      <select className="select" value={quality} onChange={e=>setQuality(e.target.value)}>
+        <option value="">Качество: все</option><option>Высокий</option><option>Хороший</option><option>Средний</option><option>Низкий</option>
       </select>
-      <select className="select" value={state.source} onChange={e=>set('source',e.target.value)}>
-        <option value="all">Все</option>
-        {facets.sources.map(v=><option key={v} value={v}>{v}</option>)}
+      <select className="select" value={source} onChange={e=>setSource(e.target.value)}>
+        <option value="">Источник: все</option><option value="AmoLine">AmoLine</option><option value="telegramm">telegramm</option>
       </select>
-      <select className="select" value={state.model} onChange={e=>set('model',e.target.value)}>
-        <option value="all">Все</option>
-        {facets.models.map(v=><option key={v} value={v}>{v}</option>)}
-      </select>
-      <input className="input" type="date" value={state.from||''} onChange={e=>set('from',e.target.value||null)} />
-      <input className="input" type="date" value={state.to||''} onChange={e=>set('to',e.target.value||null)} />
-      <div style={{display:'none'}} />
-      <button className="btn" onClick={onExport}>Экспорт в PDF</button>
+      <input className="input" placeholder="Модель" value={model} onChange={e=>setModel(e.target.value)} />
+      <div className="flex gap-3">
+        <input className="select w-full" type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} />
+        <input className="select w-full" type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)} />
+      </div>
+      <div className="lg:col-span-6 flex justify-end"><button className="btn" onClick={onClear}>Сбросить</button></div>
     </div>
   )
 }
